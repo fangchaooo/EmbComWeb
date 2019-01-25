@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="../static/css/bootstrap-grid.min.css" rel="stylesheet">
+    <link href="../static/css/bootstrap-reboot.min.css" rel="stylesheet">
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/bootstrap-select.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <title>ComConnect</title>
+</head>
+
+<body>
+    <header class="navbar navbar-expand-md navbar-light  bg-light" role="navigation">
+        <a class="navbar-brand" href="..">ComConnect</a>
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+        <div class="navbar-collapse collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="..">Act Com</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/snapappointments/bootstrap-select/">
+                        <i class="fa fa-github"></i> GitHub
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <br>
+                <select class="selectpicker" id="serialport">
+                </select>
+                <br>
+                    <select id="baud" class="selectpicker">
+                        <option value=9600>9600</option>
+                        <option value=14400>14400</option>
+                        <option value=19200>19200</option>
+                        <option value=25600 selected>25600</option>
+
+                        <option value=38400>38400</option>
+                        <option value=57600>57600</option>
+                        <option value=115200>115200</option>
+                    </select>
+                <br>
+                <br>
+                    <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Connect</a>
+                <br>
+                <br><br><br><br>
+                <br><br><br>
+            </div>
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Serial Output: </label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="12"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <br>
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="exampleFormControlFile1">File Path</label>
+                                <input type="text" class="form-control" aria-label="Text input with dropdown button">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <form>
+                                <div class="form-group">
+                                    <label for="exampleFormControlFile1">Or Choose</label>
+                                    <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="row">
+                            <div class="btn-group-vertical">
+                                <button id="connect" type="button" class="btn btn-light">Save</button>
+                                <button id="connect" type="button" class="btn btn-light">Append</button>
+                                <button id="connect" type="button" class="btn btn-light">Clear</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <!-- <textarea rows=15% cols=60% placeholder="Receive Emb Com Information!">
+                                </textarea> -->
+                        <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Serial Input: </label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <form role="form">
+                            <div class="form-group">
+                                <label for="name">Input</label>
+                                <input type="text" class="form-control" placeholder="Command Input">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-3">
+                        <br>
+                        <button id="connect" type="button" class="btn btn-light">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/jquery-3.3.1.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/bootstrap-select.min.js"></script>
+    <script src="../static/js/socket.io.js"></script>
+    <script>
+        var socket = io('http://localhost:3000');
+        //Server sending socket containing list of valid serial ports:
+        socket.on('serial list display', function(portlist){
+            $("#serialport").children().remove().end();
+            $.each(portlist, function (i, item) {
+                $('#serialport').append($('<option>', {
+                    value: i,
+                    text : item.comName
+                }));
+                $('#serialport option[value='+i+']').prop('selected','selected').change();
+            });
+        });
+         $('#serialport').change(function(){
+         	console.log("serialport selected");
+                 socket.emit('serial select', $('#serialport option:selected').text());
+          });
+         $('#baud').change(function(){
+                  socket.emit('baud select', $('#baud option:selected').text());
+         });
+    </script>
+</body>
+</html>

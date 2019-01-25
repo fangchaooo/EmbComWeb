@@ -1,0 +1,72 @@
+{% extends 'bootstrap/base.html' %}
+{% block title %} ComConnect {% endblock %}
+{% block css%}
+{{ super() }}
+    <link type="text/css" rel="stylesheet" href="static/css/bootstrap-select.min.css"></style>
+{% endblock %}
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">ComConnect</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/"></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% block page_content %}
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="row" >
+                <select id="serialport" ></select>
+            </div>
+            <br>
+            <div class="row">
+                <select id ="baud">
+                    <option value=9600>9600</option>
+                    <option value=14400>14400</option>
+                    <option value=19200>19200</option>
+                    <option value=25600 selected>25600</option>
+                    <option value=28800>28800</option>
+                    <option value=38400>38400</option>
+                    <option value=57600>57600</option>
+                    <option value=115200>115200</option>
+                </select>
+            </div>
+            <br>
+            <br>
+            <div class="row align-items-center">
+                <button id="connect" type="button" class="btn btn-lg btn-primary">Connect Serial</button>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="col-sm-7">
+                <textarea rows=100% cols=100% placeholder="Receive Emb Com Information!">
+
+                </textarea>
+            </div>
+            <div class="col-sm-2">col-8</div>
+        </div>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
+{% endblock %}
+
