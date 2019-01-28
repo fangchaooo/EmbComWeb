@@ -53,7 +53,7 @@
                     </select>
                 <br>
                 <br>
-                    <a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Connect</a>
+                    <a href="#" id="connect" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Connect Serial</a>
                 <br>
                 <br><br><br><br>
                 <br><br><br>
@@ -149,6 +149,28 @@
          $('#baud').change(function(){
                   socket.emit('baud select', $('#baud option:selected').text());
          });
+         $('#connect').click(function(){
+                 if($(this).text() != 'Connected (Click to Disconnect)'){
+                     socket.emit('serial connect request');
+                     socket.emit('add data')
+                     isActive = true;
+                 }else{
+                     socket.emit('serial disconnect request');
+                 }
+         });
+         //Update switch to connected or disconnected based on return socket from server
+         socket.on('serial connected', function(){
+             $('#connect').text('Connected (Click to Disconnect)');
+         });
+         socket.on('serial disconnected', function(){
+             console.log("oh yeah disconnecting!");
+             $('#connect').text('Disconnected (Click to Connect)');
+         });
+         socket.on('add_text', function(str){
+            $('#exampleFormControlTextarea1').append('cccccccccccccccccc\ncccccc\ncc');
+            $('#exampleFormControlTextarea1').append(str);
+         });
+         socket.on('
     </script>
 </body>
 </html>

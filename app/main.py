@@ -13,11 +13,35 @@ import struct
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
-
-
+thread = None
 serialConnected = False
 serialPort = 0
 serialLock = Lock()
+
+
+# main threading
+def serial_thread():
+    print("Starting serial background thread.")
+    while True:
+        if serialConnected:
+            print("serial connected!")
+            time.sleep(2)
+            serialLock.acquire()
+            try:
+                new_setup_string = serialPort.read()
+                serialPort.flushInput()
+            except :
+                print("initi string reading issue")
+            serialLock.release()
+            while serialConnected:
+                serialLock.acquire()
+                s = serialPort.read()
+                try:
+                    add_data(s)
+                    socketio.emit('add_text', s, broadcast =True)
+                except:
+                    print("failed socket")
+                serialLock.release()
 
 
 # serial port-----------------------------------------------------
@@ -41,6 +65,7 @@ def serial_ports():
             s.close()
             result.append(port)
         except(serial.SerialException):
+            print("serial error")
             pass
     return result
 
@@ -69,16 +94,78 @@ def action(port):
 # serial port-----------------------------------------------------
 
 # baud select----------------------------------------
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-    
 @socketio.on('baud select')
 def action(baud):
     global baud_selection
     print('baud changed to %s' %(baud))
     baud_selection = baud
+
+# connect serial
+@socketio.on('serial connect request')
+def connection(already_built):
+    global serialConnected
+    global serialPort
+    global serialLock
+    global alternate
+    global isSetup
+    isSetup = already_built['state'] #user this
+    print(isSetup)
+    print ('Trying to connect to: ' + serial_selection + ' ' + str(baud_selection))
+    print (serialLock)
+    print (serialConnected)
+    try:
+        serialLock.acquire()
+        print ("Lock acquired")
+        serialPort = serial.Serial(serial_selection, int(baud_selection),timeout=4)
+        print ('SerialPort')
+        print ('Connected to ' + str(serial_selection) + ' at ' + str(baud_selection) + ' BAUD.')
+        emit('serial connected', broadcast=True) #tells page to indicate connection (in button)
+        serialPort.flushInput()
+        #serialPort.flushOutput()
+        serialLock.release()
+        serialConnected = True #set global flag
+    except:
+        print ("Failed to connect with "+str(serial_selection) + ' at ' + str(baud_selection) + ' BAUD.')
+
+
+@socketio.on('serial disconnect request')
+def dis_con():
+    global serialConnected
+    global serialLock
+    global serialPort
+    print ('Trying to disconnect...')
+    serialLock.acquire()
+    serialPort.close()
+    serialLock.release()
+    serialConnected = False
+    emit('serial disconnected',broadcast=True)
+    print ('Disconnected...good riddance' )
+
+
+@socketio.on("disconnected")
+def ending_it():
+    print ("We're done")
+
+
+@socketio.on('add_text')
+def add_data(data):
+    if data == '':
+        emit('append data', 1)
+    emit('append data', data)
+
+
+
+@app.route('/')
+def index():
+    global thread
+    print("A user connected")
+    if thread is None:
+        thread = Thread(target=serial_thread)
+        thread.daemon = True
+        thread.start()
+    return render_template('index.html')
+
+
 
 
 if __name__ == "__main__": 
