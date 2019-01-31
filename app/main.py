@@ -77,7 +77,7 @@ def test_connect():
     # generate list of currently connected serial ports
     ports = serial_ports()
     print(ports)
-    new_b=[]
+    new_b = []
     for p in ports:
         new_b.append({"comName": p})
     print(json.dumps(new_b))
@@ -93,6 +93,7 @@ def action(port):
     serial_selection = port
 # serial port-----------------------------------------------------
 
+
 # baud select----------------------------------------
 @socketio.on('baud select')
 def action(baud):
@@ -100,13 +101,13 @@ def action(baud):
     print('baud changed to %s' %(baud))
     baud_selection = baud
 
+
 # connect serial
 @socketio.on('serial connect request')
 def connection(already_built):
     global serialConnected
     global serialPort
     global serialLock
-    global alternate
     global isSetup
     isSetup = already_built['state'] #user this
     print(isSetup)
@@ -115,15 +116,15 @@ def connection(already_built):
     print (serialConnected)
     try:
         serialLock.acquire()
-        print ("Lock acquired")
+        print("Lock acquired")
         serialPort = serial.Serial(serial_selection, int(baud_selection),timeout=4)
-        print ('SerialPort')
-        print ('Connected to ' + str(serial_selection) + ' at ' + str(baud_selection) + ' BAUD.')
-        emit('serial connected', broadcast=True) #tells page to indicate connection (in button)
+        print('SerialPort')
+        print('Connected to ' + str(serial_selection) + ' at ' + str(baud_selection) + ' BAUD.')
+        emit('serial connected', broadcast=True)
         serialPort.flushInput()
         #serialPort.flushOutput()
         serialLock.release()
-        serialConnected = True #set global flag
+        serialConnected = True
     except:
         print ("Failed to connect with "+str(serial_selection) + ' at ' + str(baud_selection) + ' BAUD.')
 
@@ -139,20 +140,20 @@ def dis_con():
     serialLock.release()
     serialConnected = False
     emit('serial disconnected',broadcast=True)
-    print ('Disconnected...good riddance' )
+    print('Disconnected...good riddance' )
 
 
 @socketio.on("disconnected")
 def ending_it():
-    print ("We're done")
+    print("We're done")
 
 
 @socketio.on('add_text')
 def add_data(data):
+    print("sendlllllllll")
     if data == '':
         emit('append data', 1)
     emit('append data', data)
-
 
 
 @app.route('/')
@@ -164,8 +165,6 @@ def index():
         thread.daemon = True
         thread.start()
     return render_template('index.html')
-
-
 
 
 if __name__ == "__main__": 

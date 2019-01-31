@@ -69,9 +69,12 @@
                     <div class="col-md-3">
                         <br>
                         <div class="row">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                                <label class="form-check-label" for="inlineCheckbox1">Log to:</label>
+                            </div>
                             <div class="form-group">
-                                <label for="exampleFormControlFile1">File Path</label>
-                                <input type="text" class="form-control" aria-label="Text input with dropdown button">
+                                <input type="text" id="input-path" class="form-control" aria-label="Text input with dropdown button" value="/home/com.log">
                             </div>
                         </div>
 
@@ -130,6 +133,7 @@
     <script src="../static/js/bootstrap-select.min.js"></script>
     <script src="../static/js/socket.io.js"></script>
     <script>
+        var file_path = ''
         var socket = io('http://localhost:3000');
         //Server sending socket containing list of valid serial ports:
         socket.on('serial list display', function(portlist){
@@ -167,10 +171,23 @@
              $('#connect').text('Disconnected (Click to Connect)');
          });
          socket.on('add_text', function(str){
+            alter("add_text");
             $('#exampleFormControlTextarea1').append('cccccccccccccccccc\ncccccc\ncc');
             $('#exampleFormControlTextarea1').append(str);
          });
-         socket.on('
+         document.addEventListener('change',function() {
+                document.getElementById('inlineCheckbox1').onchange=changeEventHandler;
+          },false);
+        function changeEventHandler(event) {
+            var input_but = document.getElementById('input-path');
+            if(event.target.checked){
+                file_path = input_but.val;
+                input_but.setAttribute('readonly','readonly');
+            }
+            else{
+                input_but.removeAttribute('readonly');
+            }
+        }
     </script>
 </body>
 </html>
